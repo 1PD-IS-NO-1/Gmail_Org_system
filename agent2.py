@@ -5,7 +5,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 import matplotlib.pyplot as plt  # Corrected import for matplotlib
 
 # Configure Google Generative AI
-GOOGLE_GENAI_API_KEY = "AIzaSyD5tZR02ryMjdV3unPEqHzlNFUZuPtSPyk"  # Replace with your actual API key
+GOOGLE_GENAI_API_KEY = "paste_gemini_api_key_here"  # Replace with your actual API key
 llm = ChatGoogleGenerativeAI(
     api_key=GOOGLE_GENAI_API_KEY,
     model="gemini-1.5-flash",  # Replace with the actual model name

@@ -4,7 +4,7 @@ import time
 import re
 from langchain_google_genai import ChatGoogleGenerativeAI
 
-GOOGLE_API_KEY = "AIzaSyD5tZR02ryMjdV3unPEqHzlNFUZuPtSPyk"
+GOOGLE_API_KEY = "paste api key here"
 os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
 
 def summarize_emails_with_local_merge(

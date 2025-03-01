@@ -19,7 +19,7 @@ app.secret_key = "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"
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 CLIENT_SECRETS_FILE = "credentials.json"
 
-GOOGLE_API_KEY = "AIzaSyD5tZR02ryMjdV3unPEqHzlNFUZuPtSPyk"  # Replace with your actual API key
+GOOGLE_API_KEY = "paste api key here."  # Replace with your actual API key
 os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
 
 def get_credentials():

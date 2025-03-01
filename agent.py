@@ -1,18 +1,19 @@
-from langchain_groq import ChatGroq
+from langchain_google_genai import ChatGoogleGenerativeAI
 import pandas as pd
 import json
 from langchain_core.messages import HumanMessage, SystemMessage
-import matplotlib as plt
-# Configure Groq
-GROQ_API_KEY = "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"
-llm = ChatGroq(
-    api_key=GROQ_API_KEY,
-    model_name="mixtral-8x7b-32768",
+import matplotlib.pyplot as plt  # Corrected import for matplotlib
+
+# Configure Google Generative AI
+GOOGLE_GENAI_API_KEY = "Past_GEMINI_api_Key_here"  # Replace with your actual API key
+llm = ChatGoogleGenerativeAI(
+    api_key=GOOGLE_GENAI_API_KEY,
+    model="gemini-1.5-flash",  # Replace with the actual model name
     temperature=0.7
 )
 
 # Load JSON data
-with open("emails.json", "r",errors="replace") as f:
+with open("emails.json", "r", errors="replace") as f:
     json_data = json.load(f)
 
 class EmailAnalyzer:
@@ -20,13 +21,12 @@ class EmailAnalyzer:
         self.llm = llm
         self.df = pd.DataFrame(data)
 
-
     def get_code_from_llm(self, question: str) -> str:
         """Get Python code from LLM to answer the question"""
         system_message = f"""You are a Python coding assistant. Given a pandas DataFrame 'df' with the following columns:
         {self.df.columns.tolist()}
 
-        Generate Python code to answer the user's question if required if not required then you can mannualy give the answer of user question according to you using print and you can give your suggetion.
+        Generate Python code to answer the user's question if required; if not required, then you can manually give the answer to the user's question according to you using print and you can give your suggestion.
         - Use pandas operations on the DataFrame 'df'
         - Return only the executable Python code, no explanations
         - Make sure the code prints the result
