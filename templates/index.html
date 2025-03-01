@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Email Extractor & Analyzer</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #007bff;
+            padding: 10px 20px;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .navbar a:hover {
+            background-color: #0056b3;
+        }
+
+        .navbar .logo {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        /* Main Content */
+        .container {
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        form {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        input[type="file"],
+        input[type="submit"] {
+            padding: 10px 15px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        input[type="text"] {
+            width: 95%;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        #emailTable,
+        #analyzedTable {
+            overflow-x: auto;
+        }
+
+        #emailTable td:nth-child(5) {
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        #analyzedTable {
+            display: none;
+        }
+
+        #seeEmailDataButton {
+            display: none;
+        }
+
+        #message {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        /* Chatbot Styles */
+        .chatbot-container {
+            width: 300px;
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .chatbot-header {
+            padding: 10px;
+            background: #007bff;
+            color: white;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chatbot-messages {
+            height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .chatbot-input {
+            padding: 10px;
+            border-top: 1px solid #ddd;
+            display: flex;
+            gap: 10px;
+        }
+
+        .message {
+            margin: 5px 0;
+            padding: 8px;
+            border-radius: 5px;
+        }
+
+        .user-message {
+            background: #007bff;
+            color: white;
+            margin-left: 20px;
+        }
+
+        .bot-message {
+            background: #f0f0f0;
+            margin-right: 20px;
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin: 5px 0;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <div class="logo">Email Analyzer</div>
+        <div>
+            <a href="/">Home</a>
+            <a href="/login" id="loginButton">Login</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <h1>Email Extractor & Analyzer</h1>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <input type="file" name="credentials" id="credentialsFile" required>
+            <button type="button" id="uploadButton">Upload Credentials</button>
+        </form>
+        <div id="message"></div>
+        <div style="text-align: center;">
+            <button id="extractCleanButton">Extract & Clean Emails</button>
+        </div>
+        <div style="text-align: center;">
+            <button id="seeEmailDataButton">See Email Data</button>
+        </div>
+        <div id="emailTable"></div>
+        <div style="text-align: center;">
+            <button id="analyzeButton">Analyze Emails</button>
+        </div>
+        <div id="analyzedTable"></div>
+    </div>
+
+    <!-- Chatbot -->
+    <button id="startChatbot" onclick="toggleChatbot()">Start Chatbot</button>
+    <div id="chatbot" class="chatbot-container">
+        <div class="chatbot-header">
+            <span>Email Analysis Assistant</span>
+            <button onclick="toggleChatbot()">Close</button>
+        </div>
+        <div class="chatbot-messages" id="chatMessages">
+            <div class="message bot-message">
+                Hello! How can I help you analyze your emails?
+            </div>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" id="messageInput" placeholder="Ask a question...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        // Handle credentials upload without page reload
+        document.getElementById("uploadButton").addEventListener("click", function () {
+            const fileInput = document.getElementById("credentialsFile");
+            if (!fileInput.files.length) {
+                alert("Please select a file to upload.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("credentials", fileInput.files[0]);
+
+            fetch("/", {
+                method: "POST",
+                body: formData
+            })
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById("message").innerHTML = data; // Show success message
+                    document.getElementById("loginButton").style.pointerEvents = "auto"; // Enable Login button
+                    document.getElementById("loginButton").style.opacity = "1"; // Make Login button visible
+                })
+                .catch(error => {
+                    console.error("Error uploading file:", error);
+                    document.getElementById("message").innerHTML = "Error uploading credentials.json.";
+                });
+        });
+
+        // Prevent Login without credentials.json
+        document.getElementById("loginButton").addEventListener("click", function (event) {
+            const fileInput = document.getElementById("credentialsFile");
+            if (!fileInput.files.length) {
+                event.preventDefault();
+                alert("Please upload credentials.json before logging in.");
+            }
+        });
+
+        // Extract and Clean Emails
+        document.getElementById("extractCleanButton").addEventListener("click", function () {
+            fetch("/emails")
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("message").innerHTML = "Emails extracted and cleaned successfully!";
+                    document.getElementById("seeEmailDataButton").style.display = "block";
+                    fetch("/clean_emails");
+                });
+        });
+
+        // Display Email Data
+        document.getElementById("seeEmailDataButton").addEventListener("click", function () {
+            fetch("/emails")
+                .then(response => response.json())
+                .then(data => {
+                    displayTable(data, "emailTable");
+                });
+        });
+
+        // Analyze Emails
+        document.getElementById("analyzeButton").addEventListener("click", function () {
+            fetch("/analyze_emails")
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("analyzedTable").style.display = "block";
+                    displayTable(data, "analyzedTable", true);
+                });
+        });
+
+        <!-- Add this inside the displayTable function in index.html -->
+        function displayTable(data, elementId, editable = false) {
+            let table = "<table><thead><tr>";
+            if (data.length > 0) {
+                for (let key in data[0]) {
+                    if (key !== "id") {
+                        table += "<th>" + key + "</th>";
+                    }
+                }
+                table += "<th>Action</th></tr></thead><tbody>";
+                data.forEach(item => {
+                    table += "<tr>";
+                    for (let key in item) {
+                        if (key !== "id") {
+                            if (editable && (key === "category" || key === "action")) {
+                                table += `<td><input type='text' value='${item[key]}'></td>`;
+                            } else {
+                                table += "<td>" + item[key] + "</td>";
+                            }
+                        }
+                    }
+                    table += `<td>
+                <button onclick="deleteEmail('${item.id}', this)">Delete</button>
+                <select onchange="moveEmail('${item.id}', this.value)">
+                    <option value="">Move to...</option>
+                    <option value="ARCHIVE">Archive</option>
+                    <option value="SPAM">Spam</option>
+                    <option value="IMPORTANT">Important</option>
+                </select>
+            </td>`;
+                    table += "</tr>";
+                });
+                table += "</tbody></table>";
+            } else {
+                table = "<p>No data available.</p>";
+            }
+            document.getElementById(elementId).innerHTML = table;
+        }
+
+        // Function to move emails
+        function moveEmail(messageId, label) {
+            if (!label) return;
+
+            fetch('/move_email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message_id: messageId, label: label })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        alert(data.message);
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to move email.');
+                });
+        }
+
+        // Delete Email Functionality
+        function deleteEmail(messageId, button) {
+            fetch('/delete_email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message_id: messageId })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        alert(data.message);
+                        button.disabled = true; // Disable the button after deletion
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to delete email.');
+                });
+        }
+
+        // Chatbot Functions
+        function toggleChatbot() {
+            const chatbot = document.getElementById('chatbot');
+            const startButton = document.getElementById('startChatbot');
+            if (chatbot.style.display === 'none' || !chatbot.style.display) {
+                chatbot.style.display = 'block';
+                startButton.style.display = 'none';
+            } else {
+                chatbot.style.display = 'none';
+                startButton.style.display = 'block';
+            }
+        }
+
+        function addMessage(message, isUser) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            messageDiv.textContent = message;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+
+            if (message) {
+                addMessage(message, true);
+                input.value = '';
+
+                fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: message })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.code) {
+                            const codeBlock = document.createElement('div');
+                            codeBlock.className = 'code-block';
+                            codeBlock.textContent = 'Generated Code:\n' + data.code;
+                            document.getElementById('chatMessages').appendChild(codeBlock);
+                        }
+                        addMessage(data.response, false);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        addMessage('Sorry, there was an error processing your request.', false);
+                    });
+            }
+        }
+
+        // Handle Enter Key
+        document.getElementById('messageInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+
+</html>

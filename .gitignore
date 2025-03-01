@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -169,3 +170,13 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+=======
+env
+appp.py
+token.pickle
+processed.json
+credentials.json
+_pycache_
+.streamlit
+credentials2.json
+>>>>>>> 1efe14b (app2 is main file)
