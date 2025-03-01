@@ -21,7 +21,7 @@ os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 app = Flask(__name__)
 app.secret_key = "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"
 
-GOOGLE_API_KEY = "AIzaSyD5tZR02ryMjdV3unPEqHzlNFUZuPtSPyk"  # Replace with your actual API key
+GOOGLE_API_KEY = "gemini api key paste here"  # Replace with your actual API key
 os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
 
 # Updated SCOPES to include modifying emails
